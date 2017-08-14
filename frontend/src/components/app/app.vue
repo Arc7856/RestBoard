@@ -249,27 +249,25 @@ export default {
       var url = 'http://rb.local.com/apps'
       this.$http.get(url).then(function (res) {
         if (res.status !== 200) {
-          this.errotGetMsg()
+          this.errorMessage('获取AP数据失败')
           return false
         }
         var data = res.body || []
-        this.httpStatus = res.status
         this.lists = data
         if (data[0]) {
           this.switchInfo(data[0].id)
         }
       })
     },
-    errotGetMsg () {
+    errorMessage (msg) {
       this.$message({
         showClose: true,
-        message: this.httpStatus,
+        message: msg,
         type: 'error',
         duration: 3000
       })
     },
-    successSubmitMsg ($msg) {
-      $msg = $msg || '添加成功'
+    successMessage ($msg) {
       this.$message({
         type: 'success',
         message: $msg
@@ -281,17 +279,11 @@ export default {
           this.dialogFormVisible = false
           this.addAppData()
         } else {
+          this.successMessage('提交APP数据失败')
           return false
         }
       })
     },
-    /* resetAppFrom () {
-      this.ruleForm = {
-        name: '',
-        desc: '',
-        remark: ''
-      }
-    }, */
     resetAppForm (formName) {
       this.$refs[formName].resetFields()
     },
@@ -299,11 +291,13 @@ export default {
       var url = 'http://rb.local.com/apps'
       this.$http.post(url, {name: this.ruleForm.name, description: this.ruleForm.description, remark: this.ruleForm.remark}, { emulateJSON: true }).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successSubmitMsg()
+          this.successMessage('添加APP数据成功')
           this.getAppLists()
+        } else {
+          this.errorMessage('添加APP数据失败')
         }
       })
-      // this.resetAppFrom()
+      this.resetAppFrom()
     },
     switchInfo (id) {
       this.currentAppID = id
@@ -313,7 +307,7 @@ export default {
           this.detailInfo = res.body
           this.getEnvData(id)
         } else {
-          this.errotGetMsg()
+          this.errorMessage('切换APP数据失败')
         }
       })
     },
@@ -323,21 +317,12 @@ export default {
         if (res.status === 200) {
           this.envTableData = res.body
         } else {
-          this.errotGetMsg()
+          this.errorMessage('获取环境信息失败')
         }
       }, function () {
         this.envTableData = []
       })
     },
-    /* resetEnvForm () {
-      this.ruleEnvForm = {
-        name: '',
-        url: '',
-        host: '',
-        color: '#fff',
-        remark: ''
-      }
-    }, */
     resetEnvForm (formName) {
       this.$refs[formName].resetFields()
     },
@@ -347,6 +332,7 @@ export default {
           this.dialogEnvFormVisible = false
           this.addEnvData()
         } else {
+          this.errorMessage('提交环境信息失败')
           return false
         }
       })
@@ -355,23 +341,19 @@ export default {
       var url = 'http://rb.local.com/envs'
       this.$http.post(url, {name: this.ruleEnvForm.name, app_id: this.currentAppID, url: this.ruleEnvForm.url, remark: this.ruleEnvForm.remark, host: this.ruleEnvForm.host, color: this.ruleEnvForm.color}, { emulateJSON: true }).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successSubmitMsg()
+          this.successMessage('添加环境信息成功')
           this.getEnvData(this.currentAppID)
+        } else {
+          this.errorMessage('添加环境信息失败')
         }
       })
-      // this.resetEnvForm()
-    },
-    successDeleteMsg () {
-      this.$message({
-        type: 'success',
-        message: '删除成功'
-      })
+      this.resetEnvForm()
     },
     deleteAppData (id) {
       var url = 'http://rb.local.com/apps/' + id
       this.$http.delete(url).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successDeleteMsg()
+          this.successMessage('成功删除APP数据')
           this.getAppLists()
         }
       })
@@ -382,6 +364,7 @@ export default {
           this.dialogFormVisible = false
           this.addEditAppData(id)
         } else {
+          this.errorMessage('提交修改环境信息失败')
           return false
         }
       })
@@ -390,18 +373,22 @@ export default {
       var url = 'http://rb.local.com/apps/' + id
       this.$http.put(url, {name: this.detailInfo.name, description: this.detailInfo.description, remark: this.detailInfo.remark}, { emulateJSON: true }).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successSubmitMsg('修改成功')
+          this.successMessage('修改APP数据成功')
           this.getAppLists()
+        } else {
+          this.errorMessage('修改APP数据失败')
         }
       })
-      // this.resetAppFrom()
+      this.resetAppFrom()
     },
     handleEnvDelete (index, id) {
       var url = 'http://rb.local.com/envs/' + id
       this.$http.delete(url).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successDeleteMsg()
+          this.successMessage('成功删除环境信息')
           this.getEnvData(this.currentAppID)
+        } else {
+          this.errorMessage('删除环境信息失败')
         }
       })
     },
@@ -411,6 +398,7 @@ export default {
           this.dialogEnvFormVisible = false
           this.addEditEnvData(id)
         } else {
+          this.successMessage('成功提交修改环境信息')
           return false
         }
       })
@@ -419,14 +407,15 @@ export default {
       var url = 'http://rb.local.com/envs/' + id
       this.$http.put(url, {name: this.ruleEnvForm.name, app_id: this.currentAppID, url: this.ruleEnvForm.url, remark: this.ruleEnvForm.remark, host: this.ruleEnvForm.host, color: this.ruleEnvForm.color}, { emulateJSON: true }).then(function (res) {
         if (res.status === 200 && res.body.id) {
-          this.successSubmitMsg('修改成功')
+          this.successMessage('修改环境信息成功')
           this.getEnvData(this.currentAppID)
+        } else {
+          this.errorMessage('修改环境信息失败')
         }
       })
-      // this.resetEnvForm()
+      this.resetEnvForm()
     },
     startEditEnvData (row) {
-      // console.log(row)
       for (var k in row) {
         this.ruleEnvForm[k] = row[k]
       }
